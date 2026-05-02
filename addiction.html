@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addiction Psychiatry - MCQ Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .option-btn { transition: all 0.2s ease-in-out; }
+        .option-btn:disabled { cursor: default; }
+        .correct { background-color: #f0fdf4 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .incorrect { background-color: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen p-4 md:p-8 flex flex-col">
+
+    <div class="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl overflow-hidden fade-in flex-grow flex flex-col border border-slate-200">
+        <!-- Header & Progress -->
+        <div class="bg-teal-800 text-white p-6 md:p-8">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">Addiction Psychiatry Review</h1>
+            <p class="text-teal-200 text-sm md:text-base">Interactive Comprehensive Module</p>
+            
+            <div class="mt-5">
+                <div class="flex justify-between text-sm mb-1 font-medium">
+                    <span id="progress-text">Question 1 of X</span>
+                    <span id="score-text" class="bg-teal-900 px-3 py-1 rounded-full">Score: 0</span>
+                </div>
+                <div class="w-full bg-teal-950 rounded-full h-2.5 shadow-inner">
+                    <div id="progress-bar" class="bg-teal-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="p-6 md:p-10 flex-grow flex flex-col">
+            <h2 id="question-text" class="text-lg md:text-xl font-semibold mb-6 leading-relaxed text-slate-800">Loading question...</h2>
+            
+            <div id="options-container" class="space-y-3 mb-8 flex-grow">
+                <!-- Options will be dynamically injected here -->
+            </div>
+
+            <!-- Explanation Box -->
+            <div id="explanation-container" class="hidden bg-slate-100 border-l-4 border-teal-500 p-5 rounded-r-lg mb-8 fade-in shadow-sm">
+                <h3 class="font-bold text-teal-900 mb-2 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Clinical Explanation / Teaching Point:
+                </h3>
+                <p id="explanation-text" class="text-slate-700 text-sm md:text-base leading-relaxed"></p>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-auto pt-4 border-t border-slate-100">
+                <button id="prev-btn" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 px-6 rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    ← Previous
+                </button>
+                <button id="next-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Skip / Next →
+                </button>
+                <button id="finish-btn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Finish Review
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Container -->
+        <div id="summary-container" class="hidden p-10 text-center fade-in my-auto">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Module Complete!</h2>
+            <div class="bg-slate-50 p-8 rounded-xl inline-block mb-8 border border-slate-200 shadow-sm">
+                <p class="text-lg text-slate-600 mb-2 font-medium">Your Final Score</p>
+                <p id="final-score" class="text-6xl font-extrabold text-teal-600"></p>
+                <p id="attempted-text" class="text-sm text-slate-500 mt-3"></p>
+            </div>
+            <p id="performance-message" class="text-lg text-slate-700 mb-8"></p>
+            <div class="space-x-4">
+                <button onclick="location.reload()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Restart Module
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Array Part 1 (Questions 1 - 45 from "MCQ addiction.pdf")
+        const mcqs = [
+            {q: "Q51: A middle aged man with a long history of alcohol misuse is admitted to the ward. He appears unclean and malnourished. He appears to be suffering with auditory hallucinations. Which of the following should not be given as part of the acute management?", opt: ["Antipsychotics", "Benzodiazepines", "Intravenous thiamine", "Intravenous glucose", "Intravenous saline"], ans: "Intravenous glucose", exp: "Exam Question Dec 2011, Exam Question Jul 2011. Intravenous glucose can precipitate Wernicke's in people who are deficient of thiamine."},
+            {q: "Q49: A university student presents to A&E with agitation, pupillary dilation and auditory hallucinations after consuming a powder at a party eight hours ago. You note that they are sweaty and shivering.", opt: ["Alcohol", "Amphetamine", "[Other options not visible]"], ans: "Amphetamine", exp: "This presentation could be explained by amphetamine use and LSD. LSD is generally taken as a small piece of blotting paper rather than as a powder and as such the most likely option is amphetamine. Additional features of amphetamine intoxication include paranoia, tachycardia, and euphoria."},
+            {q: "Q50: Which of the following new psychoactive substances is classified under the Misuse of Drugs Act as Class C?", opt: ["Methoxetamine", "Mephedrone", "Gammabutyrolactone", "Benzofuran compounds", "Synthetic cannabinoids"], ans: "Gammabutyrolactone", exp: "None explicitly shown."},
+            {q: "Q47: A man is brought to A&E by his friend. He appears suspicious and paranoid. He has red eyes and complains of a dry mouth.", opt: ["Cannabis", "[Other options not visible]"], ans: "Cannabis", exp: "Additional features of cannabis intoxication include anxiety, impaired reaction time, and euphoria. Users often experience an increase in appetite."},
+            {q: "Q48: A woman is seen in outpatient clinic. She appears to have a flu like illness, has dilated pupils, and her skin has a 'goose flesh' appearance.", opt: ["Heroin", "[Other options not visible]"], ans: "Heroin", exp: "These symptoms fit with a diagnosis of opiate withdrawal."},
+            {q: "Q45: Wernicke's encepalopathy is a recognised complication of all of the following conditions except.", opt: ["AIDS", "Anorexia nervosa", "Hyperemesis gravidarum", "Malignancy", "Alzheimer's dementia"], ans: "Alzheimer's dementia", exp: "None provided."},
+            {q: "Q46: Which of the following is true regarding alcohol misuse in the UK?", opt: ["Alcohol consumption is low compared to other European countries", "The highest levels of binge drinking occur in people aged 16-24", "Rates of alcoholic liver disease appear to be falling", "Binge drinking is more common in women than men", "Alcohol dependence is more common in women than men"], ans: "The highest levels of binge drinking occur in people aged 16-24", exp: "None provided."},
+            {q: "Q43: Which of the following is the active ingredient of subutex?", opt: ["Methadone", "Atomoxetine", "Naloxone", "Naltrexone", "Buprenorphine"], ans: "Buprenorphine", exp: "None provided."},
+            {q: "Q44: Which of the following is most indicative of alcohol dependence?", opt: ["Low GGT", "Raised MCV", "Low AST", "Raised PCV", "Raised HBA1c"], ans: "Raised MCV", exp: "None provided."},
+            {q: "Q42: Which of these symptoms is generally not a feature of opiate withdrawal?", opt: ["Pupil constriction", "Diarrhoea", "Vomiting", "Abdominal pain", "Sweating"], ans: "Pupil constriction", exp: "Exam Question Jan 2009."},
+            {q: "Q40: A mother is anxious that her 17-year-old son's cannabis use will cause him to develop schizophrenia. What should you tell her about the risk of schizophrenia associated with cannabis use?", opt: ["There is no increase in the risk of schizophrenia", "There is a 9-fold increase in the risk of schizophrenia", "There is a 6-fold increase in the risk of schizophrenia", "There is a 2-fold increase in the risk of schizophrenia", "There is a 4-fold increase in the risk of schizophrenia"], ans: "There is a 2-fold increase in the risk of schizophrenia", exp: "Exam Question Aug 2010."},
+            {q: "Q41: In the UK, which of the following is licensed for treatment of opiate withdrawal symptoms?", opt: ["Lofexidine", "Dihydrocodine", "Naltrexone", "Clonidine", "Chlordiazepoxide"], ans: "Lofexidine", exp: "None provided."},
+            {q: "Q38: According to NICE Guidelines, what quantity of alcohol is considered safe to consume after the first three months of pregnancy?", opt: ["5-6 Units up to twice a week", "2-3 Units up to three times a week", "1-2 Units up to twice a week", "No amount of alcohol is considered safe at any point in pregnancy", "3-4 Units once a week"], ans: "No amount of alcohol is considered safe at any point in pregnancy", exp: "None provided."},
+            {q: "Q39: Which of the following effects of opiate use is most likely to persist in chronic use?", opt: ["Respiratory depression", "Sedation", "Constipation", "Analgesic effects", "Euphoria"], ans: "Constipation", exp: "Exam Question Oct 2012, Exam Question Aug 2008."},
+            {q: "Q36: Which of the following would be most appropriate for a pregnant 32 year old lady with a heroin addiction who is keen to undergo a detox?", opt: ["Naloxone", "Methadone", "Buprenorphine", "Naltrexone", "Lofexidine"], ans: "Methadone", exp: "Exam Question Apr 2012."},
+            {q: "Q37: A 45 year old man, with a long history of alcohol dependence and has a history of ascites and jaundice within the previous year, commences an alcohol detoxification and reports withdrawal symptoms. Which of the following is the most appropriate medication?", opt: ["Oxazepam", "Diazepam", "Nitrazepam", "Chlordiazepoxide", "Midazolam"], ans: "Oxazepam", exp: "Oxazepam and lorazepam are indicated in patient's with impaired liver function (e.g. Liver failure and in the elderly)."},
+            {q: "Q34: A middle age woman attends the A&E department complaining of abdominal cramps. You notice she has goose bumps all over her skin and her pupils are dilated. Which of the following drugs is she most likely to be withdrawing from?", opt: ["Cocaine", "MDMA", "Amphetamine", "Heroin", "Cannabis"], ans: "Heroin", exp: "None provided."},
+            {q: "Q53: Which of the following is used as a maintenance treatment for people who suffer from opioid dependence syndrome?", opt: ["Naltrexone", "Clonidine", "Lofexidine", "Buprenorphine", "Naloxone"], ans: "Buprenorphine", exp: "Exam Question Apr 2013, Exam Question Aug 2008. Methadone and buprenorphine are synthetic opioids that act as a substitute for heroin. Clonidine and lofexidine are alpha2 adrenergic agonists, which help with a cluster of opioid withdrawal symptoms and are used in detox settings."},
+            {q: "Q35: A man with schizophrenia attends the day hospital. He appears giddy, a little sleepy and you notice he has red injected conjunctiva. Which of the following drugs do you suspect he has consumed?", opt: ["Cocaine", "Heroin", "LSD", "Amphetamine", "Cannabis"], ans: "Cannabis", exp: "None provided."},
+            {q: "Q52: Which of the following drugs of abuse is detectable in the urine for the longest amount of time?", opt: ["Cannabis", "Morphine", "LSD", "Amphetamine", "Cocaine"], ans: "Cannabis", exp: "None provided."},
+            {q: "Q33: A middle aged female is picked up by the police as she has been found wandering in the city centre. The police find her to be very confused and bring her to hospital. On examination you note that she has red cheeks, numerous spider angiomas, and smells strongly of alcohol. She tries to leave the department and has to be brought back. You note significant gait disturbance. Her neurological examination is difficult due to her level of agitation but you do not detect ophthalmoplegia. Which of the following would you administer?", opt: ["Pabrinex", "Pabrinex + vitamin B1", "Pabrinex + vitamin B2", "Pabrinex + vitamin B3", "Pabrinex+ vitamin C"], ans: "Pabrinex", exp: "Exam Question Apr 2014. Pabrinex injections contain the water-soluble vitamins C (ascorbic acid), B1 (thiamine), B2 (riboflavin), B3 (nicotinamide) and B6 (pyridoxine). One of the earliest signs of alcohol abuse is a persistently red face due to enlarged blood vessels (telangiectasia). Large numbers of spider angiomas are associated with liver cirrhosis (scarring of the liver) due to elevated oestrogen levels."},
+            {q: "Q32: Which of the following is true regarding medications used in opioid dependence?", opt: ["Lofexidine greater effect on blood pressure than clonidine", "Buprenorphine cannot be reversed by naloxone", "Buprenorphine causes more respiratory depression than methadone", "Buprenorphine is a partial agonist at the mu receptor", "Methadone mainly targets delta receptors"], ans: "Buprenorphine is a partial agonist at the mu receptor", exp: "None provided."},
+            {q: "Unnumbered Question: Which of the following is not used as an opioid detoxification agent?", opt: ["Buprenorphine", "Ephedrine", "Dihydrocodeine", "Lofexidine", "Clonidine"], ans: "Ephedrine", exp: "Drugs used in opioid detoxification include:- Methadone, Buprenorphine, Lofexidine, Clonidine, Dihydrocodeine. Lofexidine is now used in preference to clonidine as it does not causes significant hypotension, it is however more expensive. Dihydrocodeine has been used successfully but has been shown to be inferior to buprenorphine."},
+            {q: "Q31: Which of the following symptoms is not associated with alcohol intoxication?", opt: ["Impaired reaction times", "Vomiting", "Poor co-ordination", "Conjunctival injection", "Hyperreflexia"], ans: "Hyperreflexia", exp: "Reflexes are generally depressed (reduced) in alcohol intoxication. Reaction times are impaired (increased i.e. it takes longer to react) in alcohol intoxication."},
+            {q: "Q28: Symptoms of alcohol withdrawal usually begin how long after the last drink?", opt: ["1 - 2 hrs", "3 - 5 days", "1- 2 weeks", "20 - 45 minutes", "6 - 48 hrs"], ans: "6 - 48 hrs", exp: "None provided."},
+            {q: "Q29: Which of the following interferes with the conversion of aldehyde to acetic acid?", opt: ["Naltrexone", "Acamprosate", "Disulfiram", "Methadone", "Buproprion"], ans: "Disulfiram", exp: "None provided."},
+            {q: "Q27: Which of the following is indicated in the management of Wernicke's encephalopathy associated with petechial hemorrhages?", opt: ["Intravenous vitamin B6", "Intramuscular vitamin B6 with oral glucose", "Oral vitamin B1 with oral glucose", "Intravenous vitamin B1", "Oral vitamin B6"], ans: "Intravenous vitamin B1", exp: "Exam Question Sep 2011. Petechial hemorrhages are sometimes seen in an MRI of a patient with Wernicke's and are an expected feature of the disease. Therefore standard practice should take place."},
+            {q: "Q25: Identify the stage of behaviour change defined by Prochaska and DiClemente (1993) when a patient is willing to accept positive advice for change, to make planned behaviour change, to set goals and to assess past successes and failures.", opt: ["Awareness", "Contemplation", "Motivation", "Preparation", "Understanding"], ans: "Preparation", exp: "Their readiness indicates that they are preparing to change."},
+            {q: "Q26: Dependence to which of the following can result in pellagra?", opt: ["Heroin", "Alcohol", "Nicotine", "Amphetamine", "Khat"], ans: "Alcohol", exp: "Alcohol interferes with the absorption of vitamin B3 and so can cause pellagra."},
+            {q: "Q23: Which of the following is used for ultra rapid opiate detoxification?", opt: ["Diamorphine", "Morphine", "Ephedrine", "Naloxone", "Buprenorphine"], ans: "Naloxone", exp: "None provided."},
+            {q: "Q24: Which of the following has been shown to be effective in the management of problem gambling?", opt: ["Lithium", "Acamprosate", "Methylphenidate", "Atomoxetine", "Naltrexone"], ans: "Naltrexone", exp: "None provided."},
+            {q: "Q22: Which of the following has been found to cause a false positive result when testing for amphetamines?", opt: ["Selegiline", "Paracetamol", "Sertraline", "Verapamil", "Frusemide"], ans: "Selegiline", exp: "None provided."},
+            {q: "Q20: A man who has successfully completed an opiate detoxification program wants something that will help him stay off heroin in the future.", opt: ["Methadone", "Naltrexone", "[Other options not visible]"], ans: "Naltrexone", exp: "Naltrexone is used to prevent relapse in formerly opioid-dependent patients."},
+            {q: "Q21: According to NICE, which of the following is the most effective way to reducing alcohol related harm?", opt: ["Banning multi-buy offers", "Making alcohol less affordable", "Education of public about harm of alcohol", "Reducing the number of hours when alcohol can be sold", "Limiting advertising of alcoholic beverages"], ans: "Making alcohol less affordable", exp: "Exam Question Jul 2012."},
+            {q: "Q18: A man with a long history of opiate dependence wishes to begin a detoxification programme. He has tried methadone in the past and wants to try something else.", opt: ["Buprenorphine", "[Other options not visible]"], ans: "Buprenorphine", exp: "Methadone and buprenorphine are recommended as first line in opiate detoxification."},
+            {q: "Q19: A lady who is dependent on heroin becomes pregnant. Which of the following should be used if she wishes to stop using heroin?", opt: ["Methadone", "[Other options not visible]"], ans: "Methadone", exp: "Methadone is the only licenced medication for opiate detoxification during pregnancy. The detoxification regime should begin during the second trimester, and should not continue into the third trimester. Note however that maintenance on methadone is recommended rather than detoxification whilst pregnant."},
+            {q: "Q16: Elevated levels of each of the following are suggestive of an alcohol problem except?", opt: ["MCV", "GGT", "AST", "ALT", "WBC"], ans: "WBC", exp: "Exam Question Apr 2012. Alcohol use does not have any effect on the WBC count."},
+            {q: "Q17: Which of the following is true regarding drug screening tests?", opt: ["Designer cannabinoids are generally detected using standard drug screens for cannabis", "Passive inhalation of crack cocaine will typically produce a positive result", "Passive marijuana inhalation typically elicits a positive urine immunoassay result for THC", "Standard urine drug tests for amphetamine may detect MDMA", "The immunoassay for amphetamine detects the presence of benzoylecgonine"], ans: "Standard urine drug tests for amphetamine may detect MDMA", exp: "MDMA may be detected on standard drug screens as amphetamine although at a lesser rate. Data suggest that the sensitivity of detecting MDMA is about 50% less than D-amphetamine and D-methamphetamine for most urine immunoassays which supports the use of an adjunctive MDMA immunoassay if misuse is suspected (Nelson, 2016). Passive inhalation of cannabis and crack will not typically produce a positive result except in the case of prolonged exposure to smoke in a heavily contaminated environment."},
+            {q: "Q15: Which of the following is used as a maintenance treatment for people who suffer from opioid dependence syndrome?", opt: ["Naltrexone", "Clonidine", "Lofexidine", "Methadone", "Codine phosphate"], ans: "Methadone", exp: "Methadone and buprenorphine are synthetic opioids that act as a substitute for heroin. Clonidine and lofexidine are alpha2 adrenergic agonists, which help with a cluster of opioid withdrawal symptoms and are used in detox settings."},
+            {q: "Q13: Thiamine is the name used for which vitamin?", opt: ["Vitamin B6", "Vitamin E", "Vitamin B1", "Vitamin B12", "Vitamin C"], ans: "Vitamin B1", exp: "None provided."},
+            {q: "Unnumbered Question: Regarding Wernicke's, which of the following is true?", opt: ["Horizontal rather than vertical nystagmus is more common", "It is pathognomonic of alcohol abuse", "The classic clinical triad of Wernicke's encephalopathy is present in approximately 80% of cases", "The lesions of Wernicke's encephalopathy occur in a symmetrical distribution in structures surrounding the lateral ventricles", "CT is the preferred method of imaging used to assist in the diagnosis of Wernicke's"], ans: "Horizontal rather than vertical nystagmus is more common", exp: "Nystagmus (usually horizontal) is the most common ocular abnormality seen in Wernicke's. The classic clinical triad of Wernicke's encephalopathy consists of confusion, ophthalmoplegia, and gait ataxia. However, the complete triad may be present in as few as 10% of cases."},
+            {q: "Q11: Which of the following is not one of the principles of motivational interviewing?", opt: ["Encourage confrontation", "Support self-efficacy", "Roll with resistance", "Express empathy", "Develop discrepancy"], ans: "Encourage confrontation", exp: "Motivational interviewing seeks to avoid confrontation and requires the therapist to remain impartial."},
+            {q: "Unnumbered Question: A young man addicted to cannabis visits his GP. His GP advises him to stop using cannabis and the man replies that he really likes smoking it as it makes him feel relaxed. He does however accept that it makes it difficult for him to revise for exams which has been bothering him. According to the stages of change model which stage is he currently at?", opt: ["Action", "Pre-contemplation", "Contemplation", "Maintenance", "Preparation"], ans: "Contemplation", exp: "Exam Question Dec 2011. The contemplative stage is chcarterised by ambivilance and conflicted thoughts and emotions. He clearly feels in two minds about his cannabis use and therefore is contemplative. Someone in the pre-contemplative stage would not have such a balanced view of their behaviour."},
+            {q: "Q10: The term 'pot' is used to refer to which of the following illicit substances?", opt: ["Ketamine", "Heroin", "Amphetamine", "Cannabis", "Ecstasy"], ans: "Cannabis", exp: "None provided."},
+            {q: "Q9: Which of the following is indicated in the management of problem gambling associated with impulse control disorders?", opt: ["Naltrexone", "Methylphenidate", "Carbamazepine", "Olanzapine", "Atomoxetine"], ans: "Naltrexone", exp: "None provided."}
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(mcqs.length).fill(null);
+
+        // DOM Elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationContainer = document.getElementById('explanation-container');
+        const explanationText = document.getElementById('explanation-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreText = document.getElementById('score-text');
+        const quizContainer = document.getElementById('quiz-container');
+        const summaryContainer = document.getElementById('summary-container');
+
+        function initQuiz() {
+            renderQuestion();
+        }
+
+        function calculateScore() {
+            return userAnswers.filter(ans => ans && ans.isCorrect).length;
+        }
+
+        function renderQuestion() {
+            const currentQ = mcqs[currentQuestionIndex];
+            const savedAnswer = userAnswers[currentQuestionIndex];
+
+            // Reset UI for the question
+            explanationContainer.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            // Update Text & Progress
+            questionText.textContent = currentQ.q;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} of ${mcqs.length}`;
+            scoreText.textContent = `Score: ${calculateScore()}`;
+            progressBar.style.width = `${((currentQuestionIndex) / mcqs.length) * 100}%`;
+
+            // Update Navigation state
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === mcqs.length - 1) {
+                nextBtn.classList.add('hidden');
+                finishBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                finishBtn.classList.add('hidden');
+            }
+
+            // Render Options
+            currentQ.opt.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50 text-slate-700 font-medium shadow-sm flex items-start';
+                
+                const letter = String.fromCharCode(65 + index);
+                btn.innerHTML = `<span class="font-bold w-6 shrink-0 text-teal-600">${letter}.</span> <span class="leading-tight">${option}</span>`;
+                
+                // If question was already answered, style it and show explanation
+                if (savedAnswer) {
+                    btn.disabled = true;
+                    
+                    const isCorrectOption = option === currentQ.ans || currentQ.ans.includes(option);
+                    const isSelectedOption = option === savedAnswer.selected;
+                    
+                    if (isCorrectOption) {
+                        btn.classList.add('correct');
+                    } else if (isSelectedOption && !savedAnswer.isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+
+                    showExplanation(currentQ.exp);
+                    if(currentQuestionIndex !== mcqs.length - 1) {
+                        nextBtn.textContent = 'Next →';
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(btn, option, currentQ.ans, currentQ.exp);
+                    nextBtn.textContent = 'Skip / Next →';
+                }
+                
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedBtn, selectedOption, correctOption, explanation) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true); // Disable all
+
+            // Check if correct
+            const isCorrect = selectedOption === correctOption || correctOption.includes(selectedOption);
+            
+            // Save answer to state
+            userAnswers[currentQuestionIndex] = {
+                selected: selectedOption,
+                isCorrect: isCorrect
+            };
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+            } else {
+                selectedBtn.classList.add('incorrect');
+                // Highlight the correct one
+                allBtns.forEach(btn => {
+                    if(btn.textContent.includes(correctOption)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreText.textContent = `Score: ${calculateScore()}`;
+            showExplanation(explanation);
+            
+            if(currentQuestionIndex !== mcqs.length - 1) {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+        function showExplanation(explanation) {
+            explanationText.textContent = explanation || "No further explanation provided in the source material.";
+            explanationContainer.classList.remove('hidden');
+        }
+
+        // Navigation Listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < mcqs.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        });
+
+        finishBtn.addEventListener('click', () => {
+            showSummary();
+        });
+
+        function showSummary() {
+            quizContainer.classList.add('hidden');
+            summaryContainer.classList.remove('hidden');
+            progressBar.style.width = `100%`;
+            progressText.textContent = `Completed`;
+
+            const finalScore = calculateScore();
+            const attempted = userAnswers.filter(ans => ans !== null).length;
+
+            document.getElementById('final-score').textContent = `${finalScore} / ${mcqs.length}`;
+            document.getElementById('attempted-text').textContent = `You attempted ${attempted} out of ${mcqs.length} questions.`;
+            
+            const percentage = (finalScore / mcqs.length) * 100;
+            const msgEl = document.getElementById('performance-message');
+            
+            if(percentage >= 80) msgEl.textContent = "Excellent work! You have a highly advanced grasp of this clinical material.";
+            else if(percentage >= 60) msgEl.textContent = "Good job. Ensure you review the clinical explanations for the ones you missed.";
+            else msgEl.textContent = "Keep studying! Use this module repeatedly to drill these high-yield board concepts.";
+        }
+
+        // Start App
+        initQuiz();
+
+        // Data array too long. Type "Continue" to get the rest of the questions.
+    </script>
+</body>
+</html>
+```
+
