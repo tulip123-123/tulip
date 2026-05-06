@@ -1,0 +1,951 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adult Psychiatry - Medical Board Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .option-btn { transition: all 0.2s ease-in-out; }
+        .option-btn:disabled { cursor: default; }
+        .correct { background-color: #f0fdfa !important; border-color: #0d9488 !important; color: #115e59 !important; }
+        .incorrect { background-color: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .whitespace-pre-line { white-space: pre-line; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen p-4 md:p-8 flex flex-col">
+
+    <div class="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl overflow-hidden fade-in flex-grow flex flex-col border border-slate-200">
+        <!-- Header & Progress -->
+        <div class="bg-indigo-900 text-white p-6 md:p-8">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">Adult Psychiatry Board Review (Part 2 & 3)</h1>
+            <p class="text-indigo-200 text-sm md:text-base">Interactive Comprehensive Module</p>
+            
+            <div class="mt-5">
+                <div class="flex justify-between text-sm mb-1 font-medium">
+                    <span id="progress-text">Question 1 of X</span>
+                    <span id="score-text" class="bg-indigo-950 px-3 py-1 rounded-full border border-indigo-800">Score: 0</span>
+                </div>
+                <div class="w-full bg-indigo-950 rounded-full h-2.5 shadow-inner">
+                    <div id="progress-bar" class="bg-indigo-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="p-6 md:p-10 flex-grow flex flex-col">
+            <h2 id="question-text" class="text-lg md:text-xl font-semibold mb-6 leading-relaxed text-slate-800 whitespace-pre-line">Loading question...</h2>
+            
+            <div id="options-container" class="space-y-3 mb-8 flex-grow">
+                <!-- Options will be dynamically injected here -->
+            </div>
+
+            <!-- Explanation Box -->
+            <div id="explanation-container" class="hidden bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-r-lg mb-8 fade-in shadow-sm">
+                <h3 class="font-bold text-indigo-900 mb-2 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Clinical Explanation / Teaching Point:
+                </h3>
+                <p id="explanation-text" class="text-slate-700 text-sm md:text-base leading-relaxed whitespace-pre-line"></p>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-auto pt-4 border-t border-slate-100">
+                <button id="prev-btn" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 px-6 rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    ← Previous
+                </button>
+                <button id="next-btn" class="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Skip / Next →
+                </button>
+                <button id="finish-btn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Finish Review
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Container -->
+        <div id="summary-container" class="hidden p-10 text-center fade-in my-auto">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Module Complete!</h2>
+            <div class="bg-slate-50 p-8 rounded-xl inline-block mb-8 border border-slate-200 shadow-sm">
+                <p class="text-lg text-slate-600 mb-2 font-medium">Your Final Score</p>
+                <p id="final-score" class="text-6xl font-extrabold text-indigo-700"></p>
+                <p id="attempted-text" class="text-sm text-slate-500 mt-3"></p>
+            </div>
+            <p id="performance-message" class="text-lg text-slate-700 mb-8"></p>
+            <div class="space-x-4">
+                <button onclick="location.reload()" class="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                    Restart Module
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Array Part 1 (Questions 1 - 50)
+        const mcqs = [
+            {
+                q: "Q19 Question Stem: Which of the following drugs (excluding those prescribed) is thought to be most commonly used by people in England, Wales, and Scotland?",
+                opt: ["Ecstasy", "Magic mushrooms", "Amphetamine", "Cocaine", "Cannabis"],
+                ans: "Cannabis",
+                exp: "The DoH survey found the following lifetime prevalence rates for illicit drug use:- (Data table cut off)."
+            },
+            {
+                q: "Q17 Question Stem: Which of the following subtypes of schizophrenia is also known as hebephrenic schizophrenia?",
+                opt: ["Undifferentiated", "Residual", "Disorganised", "Simple", "Paranoid"],
+                ans: "Disorganised",
+                exp: "None provided in the image."
+            },
+            {
+                q: "Q18 Question Stem: Which of the following is the best estimate of the lifetime prevalence of dysthymia in community populations?",
+                opt: ["5%", "1%", "0.5%", "10%", "15%"],
+                ans: "5%",
+                exp: "Exam question April 2016. In a 2004 analysis of the literature, investigators determined a lifetime prevalence of dysthymia in US communities of 3.6 percent (Waraich 2004). These rates appear comparable to those found in the Netherlands (4.6%). To summarise, the lifetime prevalence rate of dysthymia in US communities appears to be between 3 and 6 percent."
+            },
+            {
+                q: "Q15 Question Stem: Regarding rapid-cycling bipolar disorder, which of the following is false?",
+                opt: ["Rapid cycling is more common in women", "Rapid cycling is associated with an earlier age at onset", "Rapid cycling associated with a greater illness burden", "Rapid cycling is associated with higher treatment resistance", "Rapid cycling is more common in people who have never been married"],
+                ans: "Rapid cycling is more common in people who have never been married",
+                exp: "Rapid-cycling is associated with a history of being married."
+            },
+            {
+                q: "Q16 Question Stem: Higher doses of clozapine may be required in which of the following?",
+                opt: ["Female patients", "Smokers", "Patients on fluoxetine", "Patients with a high BMI", "Elderly patients"],
+                ans: "Smokers",
+                exp: "None provided."
+            },
+            {
+                q: "Q13 Question Stem: The mother of a teenage girl persistently makes comments suggesting that her daughter is overweight. This is despite the girl being a healthy weight. The mother has always felt insecure about her own weight ever since she gave birth to her daughter. The girl becomes upset about her weight and starts to self-harm and is referred to see a psychiatrist. Which of the following dynamic processes best explains this scenario?",
+                opt: ["Acting out", "Projection", "Regression", "Reaction formation", "Projective identification"],
+                ans: "Projective identification",
+                exp: "The mother appears to project her own insecurities into her daughter who accepts them and feels them as if they were her own. This is despite her weight being normal. As such the projection is identified with and so projective identification best explains this."
+            },
+            {
+                q: "Q14 Question Stem: NICE recommend which of the following should not be prescribed for people with panic disorder?",
+                opt: ["Fluoxetine", "Clomipramine", "Imipramine", "Sertraline", "Diazepam"],
+                ans: "Diazepam",
+                exp: "Benzodiazepines are associated with a less good outcome in the long-term and should not be prescribed for the treatment of individuals with panic disorder."
+            },
+            {
+                q: "Q11 Question Stem: Which of the following antipsychotics is available as a depot?",
+                opt: ["Asenapine", "Quetiapine", "Clozapine", "Amisulpride", "Risperidone"],
+                ans: "Risperidone",
+                exp: "A depot injection is a slow-release, slow-acting form of a medication. Although several of the options are available in injectable form (e.g. clozapine) this is not in a slow release form. Risperidone is available in the following depot forms: Risperdal Consta, Paliperidone."
+            },
+            {
+                q: "Q12 Question Stem: Which of the following is not suggestive of a diagnosis of post traumatic stress disorder?",
+                opt: ["Poor concentration", "Hypervigilance", "Hypersomnia", "Exaggerated startle response", "Flashbacks"],
+                ans: "Hypersomnia",
+                exp: "People with PTSD tend to experience difficulty with sleeping. Hypersomnia means sleeping excessively and is seen in atypical depression."
+            },
+            {
+                q: "Q12 Question Stem: Which of the following is licensed as an aid to smoking cessation?",
+                opt: ["Rivastigmine", "Naloxone", "Varenicline", "Buprenorphine", "Procyclidine"],
+                ans: "Varenicline",
+                exp: "Varenicline is a selective nicotine-receptor partial agonist used as an aid for smoking cessation."
+            },
+            {
+                q: "Q9 Question Stem: Which of the following is true regarding suicide following deliberate self-harm (DSH)?",
+                opt: ["Between 5% and 10% of people who die by suicide have a history of at least one episode of DSH", "DSH is the strongest risk factor for suicide", "High suicide intent is not associated with greater risk of suicide, in the first year following DSH", "Suicidal intent is a reliable predictor of suicide in the individual patient", "Risk of suicide is not increased in those who are repeaters of DSH"],
+                ans: "DSH is the strongest risk factor for suicide",
+                exp: "Following evidence taken from 'What happens to deliberate self harm patients in the long term?', Professor Keith Hawton, Centre for Suicide Research, University of Oxford, UK, 2005. Between 40% and 60% of people who die by suicide have a history of at least one episode of DSH. DSH is the strongest risk factor for suicide. High suicide intent is associated with greater risk of suicide, especially in the first year following DSH. Suicidal intent is not a..."
+            },
+            {
+                q: "Question Question Stem: An elderly man on haloperidol for a psychotic illness is found to have a prolonged QTc interval on a routine ECG. Which of the following antipsychotics is believed to have the lowest effect on the QTc interval and may therefore be a useful alternative?",
+                opt: ["Chlorpromazine", "Quetiapine", "Aripiprazole", "Sulpiride", "Risperidone"],
+                ans: "Aripiprazole",
+                exp: "Exam Question Oct 2013"
+            },
+            {
+                q: "Question Question Stem: Which of the following is true regarding antidepressant discontinuation syndrome?",
+                opt: ["Symptoms rapidly disappear upon readministration of the drug", "A severe discontinuation syndrome is seen with agomelatine", "Discontinuation syndrome does not occur with MAOI use", "Treatment must be resumed immediately if symptoms of the discontinuation syndrome emerge", "Discontinuation symptoms do not last more than 72 hours"],
+                ans: "Symptoms rapidly disappear upon readministration of the drug",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: A patient who needs to start an antipsychotic tells you that they are very concerned about the risk of weight gain. You expect that they will stop the medication if they gain weight. Which of the following would be most appropriate to try first?",
+                opt: ["Olanzapine", "Risperidone", "Clozapine", "Quetiapine", "Aripiprazole"],
+                ans: "Aripiprazole",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: According to the Gottesman data, what is the risk of developing schizophrenia in a child of a father with the condition?",
+                opt: ["17%", "46%", "1%", "13%", "5%"],
+                ans: "13%",
+                exp: "Exam Question Oct 2015"
+            },
+            {
+                q: "Question Question Stem: The Maudsley guidelines suggest which antidepressant for women who are breastfeeding?",
+                opt: ["Fluoxetine", "Sertraline", "Citalopram", "Amitriptyline", "Imipramine"],
+                ans: "Sertraline",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: Which of the following features is suggestive of mania rather than hypomania?",
+                opt: ["Delusions of grandeur", "Decreased need for sleep", "Elevated sex drive", "Irritability", "Expansive mood"],
+                ans: "Delusions of grandeur",
+                exp: "Both the ICD-10 and DSM-IV recognise that psychosis (delusions and hallucinations) does not occur in hypomania."
+            },
+            {
+                q: "Question Question Stem: Which of the following is NOT an appropriate first line agent for an adult with obsessive compulsive disorder?",
+                opt: ["Fluoxetine", "Mirtazapine", "Citalopram", "Paroxetine", "Sertraline"],
+                ans: "Mirtazapine",
+                exp: "For adult OCD use SSRIs"
+            },
+            {
+                q: "Question Question Stem: A diabetic patient who has recently been started on antidepressants attends clinic complaining of nausea and headaches. They are found to have low plasma sodium levels. Which of the following is the most likely diagnosis?",
+                opt: ["SIADH", "Psychogenic polydipsia", "Hypoglycemia", "Diabetic ketoacidosis", "Hyperglycemia"],
+                ans: "SIADH",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: According to the findings from the Epidemiological Catchment Area study, which of the following was found to be the most prevalent disorder?",
+                opt: ["Substance misuse disorders", "Somatization disorder", "Anxiety disorders", "Affective disorders", "Schizophrenia and schizophreniform disorders"],
+                ans: "Substance misuse disorders",
+                exp: "Substance misuse included alcohol and drugs and was found to be the most prevalent disorder. Interestingly this appears to contrast with the National Psychiatry Morbidity Survey which found neurotic disorders to be the most prevalent. This probably results from study design rather than true variation. The ECA did find high rates of alcohol dependence and illicit drug use but presented the findings in separate categories."
+            },
+            {
+                q: "Question Question Stem: What is the peak age of onset of bipolar disorder?",
+                opt: ["11-15", "15-19", "19-22", "22-27", "27-31"],
+                ans: "15-19",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: A patient with bipolar I disorder, who had been stable on lithium for many years, has had five episodes of hypomania in the last year and currently presents with a hypomanic episode. Which of the following would be most appropriate?",
+                opt: ["Stop the lithium and start valproate", "Continue the lithium and add venlafaxine", "Stop the lithium and commence clozapine", "Continue the lithium and add olanzapine", "Stop the lithium and start lamotrigine"],
+                ans: "Continue the lithium and add olanzapine",
+                exp: "Exam Question Apr 2012. The case indicates bipolar I with rapid cycling. NICE do not recommend any different treatment for rapid cycling and so adding an antipsychotic to lithium would be the next step. The Maudsley Guidelines would argue that one might consider combining mood stabilisers as an alternative to the above approach (e.g. lithium plus valproate)."
+            },
+            {
+                q: "Question Question Stem: You diagnose schizophrenia in a 35 year old man, which of the following relatives is most likely to develop the same condition?",
+                opt: ["Parent", "Sister", "Uncle", "Child", "Half brother"],
+                ans: "Child",
+                exp: "None provided."
+            },
+            {
+                q: "Question Question Stem: Regarding the NICE guidelines on self-harm, which of the following is true? (Note: Options cut off in source text)",
+                opt: ["Harm minimisation strategies should be offered for people who have self-harmed by poisoning", "Most people who self harm do not meet criteria for a psychiatric diagnosis at the time they are assessed", "People who self-harm who have a diagnosis of borderline personality disorder should be offered fluoxetine", "All children who have self-harmed should be admitted overnight to a paediatric ward"],
+                ans: "Unknown (cut off in source)",
+                exp: "Answer and explanation were not provided in the source text."
+            },
+            {
+                q: "Q23 Question Stem: According to the Royal College of Psychiatrists, which of the following groups poses a high risk for self-harm?",
+                opt: ["Manual workers", "People with a regular job", "Asylum seekers", "Managers", "People from travelling communities"],
+                ans: "Asylum seekers",
+                exp: "There is a higher incidence of self-harm among prisoners, asylum seekers, veterans from the armed forces, people bereaved by suicide, some cultural minority groups and people from sexual minorities."
+            },
+            {
+                q: "Q21 Question Stem: You are asked to see a new patient admitted to the ward by one of your colleagues. The patient has been diagnosed with acute mania and requires some medication. The patient is keen to discuss the options. The patient asks you which medication is best tolerated. Which of the following medications has been shown to be most acceptable to patients with acute mania?",
+                opt: ["Haloperidol", "Lithium", "Olanzapine", "Valproate", "Asenapine"],
+                ans: "Olanzapine",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q22 Question Stem: Which of the following has been shown to be significantly associated with an increased risk for suicide following self-harm in adults aged over 60?",
+                opt: ["Current psychiatric treatment", "Bereavement", "Alcohol problem", "Physical health problem", "Violent method of self-harm"],
+                ans: "Violent method of self-harm",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Unnumbered Question Question Stem: Which of the following is the best established risk factor for puerperal psychosis?",
+                opt: ["Race", "Age", "Method of delivery", "Parity", "Poor relationship with the father"],
+                ans: "Parity",
+                exp: "After a personal and family history of psychiatric illness, parity appears to be the most important risk factor for puerperal psychosis. Episodes are more common following first babies. The reason for the increased risk is unclear. Puerperal psychosis: identifying and caring for women at risk. Jones and Smith Adv Psychiatr Treat. 2009; 15: 411-418."
+            },
+            {
+                q: "Q19 Question Stem: Children born to women with anorexia nervosa are at an increased risk of all of the following except",
+                opt: ["Low APGAR scores", "Microcephaly", "Premature birth", "Low birth weight", "Macrosomia"],
+                ans: "Macrosomia",
+                exp: "Macrosomia refers to 'big babies' typically more than 4.5kg (9lb 15oz)."
+            },
+            {
+                q: "Q37 Question Stem: A 36-year-old woman who has frequently attended in the past with multiple somatic complaints is diagnosed with generalised anxiety disorder. She is initially treated with a low intensity psychological interventions which unfortunately fails to improve her symptoms. What is the most appropriate medication to offer her next line?",
+                opt: ["Fluoxetine", "Propranolol", "Citalopram", "Imipramine", "Sertraline"],
+                ans: "Sertraline",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q18 Question Stem: Which of the following medications would be most likely to interfere with the efficacy of the oral contraceptive pill?",
+                opt: ["Lithium", "Olanzapine", "Carbamazepine", "Valproate", "Lamotrigine"],
+                ans: "Carbamazepine",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q24 Question Stem: The borderline syndrome is characterised by which of the following?",
+                opt: ["Affective stablity", "Consistent self image", "Dissociative symptoms", "Euphoric affect", "Good impulse control"],
+                ans: "Dissociative symptoms",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q17 Question Stem: Which of the following is true regarding rapid cycling versus non rapid cycling bipolar disorder?",
+                opt: ["Rapid cycling is more common in unmarried patients", "Rapid cycling is more common in women", "Rapid cycling is more common in those with a positive family history", "Rapid cycling is more common in those with a shorter duration of illness", "Rapid cycling is more common in those with a later age of onset"],
+                ans: "Rapid cycling is more common in women",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q16 Question Stem: Which of the following drugs is most likely to cause myocarditis?",
+                opt: ["Haloperidol", "Aripiprazole", "Zuclopenthixol", "Clozapine", "Quetiapine"],
+                ans: "Clozapine",
+                exp: "Myocarditis presents with chest pain and palpitations. ECG changes include diffuse T wave inversion. It presents like a myocardial infarction but there is not blockage in the coronary arteries. Whilst is has been associated with other antipsychotics, by far the strongest association is with clozapine."
+            },
+            {
+                q: "Q14 Question Stem: A lady with bipolar disorder for which she is prescribed an antipsychotic attends clinic and tells you she is 3 weeks pregnant and wants to continue with the pregnancy. You strongly suspect that she will relapse if she is not on some form of treatment. Which of the following would you suggest?",
+                opt: ["Stop the antipsychotic and commence Depakote with regular ultrasound monitoring throughout the pregnancy", "Stop the antipsychotic and monitor for signs of relapse", "Continue with the current dose of the antipsychotic and monitor regularly", "Stop the antipsychotic and start lithium along with high dose folate", "Stop the antipsychotic and start lamotrigine"],
+                ans: "Continue with the current dose of the antipsychotic and monitor regularly",
+                exp: "Relapse is high if women stop treatment during pregnancy. In this situation, the NICE Guidelines suggest continuation with the antipsychotic."
+            },
+            {
+                q: "Q15 Question Stem: Which of the following is considered to be the minimum effective dose of amisulpride for a first-episode of psychosis in an adult male?",
+                opt: ["10 mg", "2 mg", "300 mg", "20 mg", "200 mg"],
+                ans: "300 mg",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q12 Question Stem: Which of the following is least likely to cause postural hypotension?",
+                opt: ["Haloperidol", "Aripiprazole", "Clozapine", "Quetiapine", "Olanzapine"],
+                ans: "Aripiprazole",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q13 Question Stem: In phase I of the CATIE study, which of the following atypical antipsychotics was not included?",
+                opt: ["Risperidone", "Clozapine", "Ziprasidone", "Olanzapine", "Quetiapine"],
+                ans: "Clozapine",
+                exp: "Exam Question Oct 2012. Clozapine was included in phase II of the study."
+            },
+            {
+                q: "Q11 Question Stem: Which of the following is suggestive of schizoid personality disorder?",
+                opt: ["Impulsivity", "Lack of remorse", "Promiscuity", "Preoccupation with being criticised in social settings", "Lack of desire for companionship"],
+                ans: "Lack of desire for companionship",
+                exp: "Exam Question Jul 2011."
+            },
+            {
+                q: "Q9 Question Stem: Which of the following is a skin change seen in anorexia nervosa?",
+                opt: ["Xerosis", "Carotenoderma", "Seborrheic dermatitis", "Hypertrichiosis", "All of the above"],
+                ans: "All of the above",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q10 Question Stem: Which of the following is not characteristic of dependent personality disorder?",
+                opt: ["Unrealistic fears of being left to care for themselves", "Excessive need for admiration and acclaim", "Difficulty in expressing disagreement with others due to fears of losing support", "Lack of initiative", "Need for others to assume responsibility for major areas of their life"],
+                ans: "Excessive need for admiration and acclaim",
+                exp: "The excessive need for admiration suggests narcissistic personality disorder."
+            },
+            {
+                q: "Q7 Question Stem: The instrument used in the Epidemiological Catchment Area (ECA) study was?",
+                opt: ["The CIDI-R", "The SCID", "The CIDI", "The SCAN", "The DIS"],
+                ans: "The DIS",
+                exp: "CIDI = NCS. DIS = ECA. CIS = NPMS."
+            },
+            {
+                q: "Q8 Question Stem: For a diagnosis of schizophrenia, the DSM-5 stipulates that symptoms of schizophrenia must be present for at least",
+                opt: ["4 months", "1 year", "1 week", "6 months", "1 month"],
+                ans: "6 months",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q6 Question Stem: Which of the following is true regarding the standardised mortality ratio of people with schizophrenia?",
+                opt: ["It is lower in people of lower social class", "It falls with age", "It is higher in males", "It is higher in those who are married", "It has a value below 1, suggesting that people with schizophrenia are less likely to die than those without it"],
+                ans: "It falls with age",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q4 Question Stem: Which of the following psychiatric conditions is also known as Briquet's syndrome?",
+                opt: ["Hypochondriasis", "Multiple personality disorder", "Somatisation disorder", "Body dysmorphic disorder", "Conversion disorder"],
+                ans: "Somatisation disorder",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q5 Question Stem: Which of the following would you most expect in a patient with anorexia nervosa?",
+                opt: ["Bradycardia with hypertension", "Tachycardia with hypotension", "Tachycardia with hypertension", "Bradycardia with hypotension", "Tachycardia with shortened QTc interval"],
+                ans: "Bradycardia with hypotension",
+                exp: "Exam Question Apr 2013."
+            },
+            {
+                q: "Q3 Question Stem: Which of the following is true regarding hypomania?",
+                opt: ["It is associated with mood congruent delusions", "It is associated with bizarre delusions", "It does not severely affect psychosocial functioning", "Hypomania is a more severe form of mania", "It usually presents with hallucinations"],
+                ans: "It does not severely affect psychosocial functioning",
+                exp: "Exam Question Feb 2008. A hypomanic episode is not severe enough to cause marked impairment in social or occupational functioning or to necessitate hospitalization. If there are psychotic features, the episode is, by definition, manic."
+            },
+            {
+                q: "Q2 Question Stem: The AESOP study found the lowest incidence rates for psychosis in which of the following groups?",
+                opt: ["Asian", "African-Caribbean", "White British", "Other", "Black African"],
+                ans: "White British",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q1 Question Stem: Which of the following endocrine changes is seen in anorexia nervosa?",
+                opt: ["Increased growth hormone levels", "Low T4 (thyroxine) levels", "Decreased plasma cortisol levels", "Decreased carotene levels in the plasma", "Increased luteinising hormone levels"],
+                ans: "Increased growth hormone levels",
+                exp: "Exam Question Aug 2009."
+            },
+            {
+                q: "Q17 Question Stem: Which of the following is the most accurate approximation of the proportion of patients with borderline personality disorder who have been sexually abused?",
+                opt: ["55%", "5%", "25%", "95%", "80%"],
+                ans: "55%",
+                exp: "Exam Question Apr 2012."
+            },{
+                q: "Q6 Question Stem: Which of the following is true regarding the standardised mortality ratio of people with schizophrenia?",
+                opt: ["It is lower in people of lower social class", "It falls with age", "It is higher in males", "It is higher in those who are married", "It has a value below 1, suggesting that people with schizophrenia are less likely to die than those without it"],
+                ans: "It falls with age",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q4 Question Stem: Which of the following psychiatric conditions is also known as Briquet's syndrome?",
+                opt: ["Hypochondriasis", "Multiple personality disorder", "Somatisation disorder", "Body dysmorphic disorder", "Conversion disorder"],
+                ans: "Somatisation disorder",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q5 Question Stem: Which of the following would you most expect in a patient with anorexia nervosa?",
+                opt: ["Bradycardia with hypertension", "Tachycardia with hypotension", "Tachycardia with hypertension", "Bradycardia with hypotension", "Tachycardia with shortened QTc interval"],
+                ans: "Bradycardia with hypotension",
+                exp: "Exam Question Apr 2013."
+            },
+            {
+                q: "Q3 Question Stem: Which of the following is true regarding hypomania?",
+                opt: ["It is associated with mood congruent delusions", "It is associated with bizarre delusions", "It does not severely affect psychosocial functioning", "Hypomania is a more severe form of mania", "It usually presents with hallucinations"],
+                ans: "It does not severely affect psychosocial functioning",
+                exp: "Exam Question Feb 2008. A hypomanic episode is not severe enough to cause marked impairment in social or occupational functioning or to necessitate hospitalization. If there are psychotic features, the episode is, by definition, manic."
+            },
+            {
+                q: "Q2 Question Stem: The AESOP study found the lowest incidence rates for psychosis in which of the following groups?",
+                opt: ["Asian", "African-Caribbean", "White British", "Other", "Black African"],
+                ans: "White British",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q1 Question Stem: Which of the following endocrine changes is seen in anorexia nervosa?",
+                opt: ["Increased growth hormone levels", "Low T4 (thyroxine) levels", "Decreased plasma cortisol levels", "Decreased carotene levels in the plasma", "Increased luteinising hormone levels"],
+                ans: "Increased growth hormone levels",
+                exp: "Exam Question Aug 2009."
+            },
+            {
+                q: "Q17 Question Stem: Which of the following is the most accurate approximation of the proportion of patients with borderline personality disorder who have been sexually abused?",
+                opt: ["55%", "5%", "25%", "95%", "80%"],
+                ans: "55%",
+                exp: "Exam Question Apr 2012."
+            },
+            {
+                q: "Q16 Question Stem: A 30 year old lady started on venlafaxine for depression complains that her periods have stopped and that she has started lactating. She is very upset by this. Which of the following alternative antidepressants would you switch her to whilst conducting the necessary investigations?",
+                opt: ["Sertraline", "Mirtazapine", "Clomipramine", "Reboxetine", "Fluoxetine"],
+                ans: "Mirtazapine",
+                exp: "The lady presents with features consistent with hyperprolactinaemia (brought on in this case by venlafaxine). In this situation the appropriate choice is mirtazapine as it is believed to have little to no effect on prolactin."
+            },
+            {
+                q: "Q15 Question Stem: NICE guidelines warn clinicians that hypertension may result from the prescription of which of the following?",
+                opt: ["Duloxetine", "Paroxetine", "Lofepramine", "Sertraline", "Fluoxetine"],
+                ans: "Duloxetine",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q14 Question Stem: For how long should a patient with a single episode of depression remain on an antidepressant?",
+                opt: ["For 2 years in total", "For 6-9 months following complete remission", "For 12 months following the first sign of improvement", "For a minimum of 3 months following complete remission", "For 3 years from the beginning of the depressive episode"],
+                ans: "For 6-9 months following complete remission",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q13 Question Stem: Which of the following is false regarding perinatal mental health problems?",
+                opt: ["Without treatment 30% of women with postnatal depression are still ill at 1 year post-partum", "Infanticide rates are decreasing", "Prolonged postnatal depression is associated with adverse effects on the emotional state of the infant", "Deliberate self harm and suicide are less common during pregnancy and the post-partum period than at other times", "Puerperal psychosis is usually very responsive to treatment"],
+                ans: "Infanticide rates are decreasing",
+                exp: "The early-onset puerperal psychoses and severe depressive illnesses are usually very responsive to treatment. Deliberate self-harm and suicide are less common in pregnancy and the post-partum period. Despite this, suicide and other 'psychiatric' deaths account for almost 10% of all maternal deaths in the UK. Prolonged postnatal depression is associated with adverse effects on the mother-infant relationship and the emotional state of the infant. Despite the decline in both perinatal and infant mortality, infanticide has remained relatively constant over the past 100 years, with about 20 convictions per year. Without treatment, 30% of women suffering from postnatal depression are still ill at 1 year post-partum."
+            },
+            {
+                q: "Q12 Question Stem: Which of the following is not a typical feature of avoidant personality disorder?",
+                opt: ["Reluctance to be involved in social activity unless they are certain that they are liked by the group", "Urgent search for another relationship as a source of care and support when a close relationship ends", "Social isolation", "Viewing self as inferior to others", "Limited personal relationships due to fears of being embarrassed"],
+                ans: "Urgent search for another relationship as a source of care and support when a close relationship ends",
+                exp: "An urgent search for another relationship as a source of care and support when a close relationship ends is seen in dependent personality disorder."
+            },
+            {
+                q: "Q11 Question Stem: Eye movement desensitisation and reprocessing therapy is generally used for which of the following conditions?",
+                opt: ["Post-stroke depression", "PTSD", "Borderline personality disorder", "Eating disorders", "Conduct disorder"],
+                ans: "PTSD",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q10 Question Stem: You are asked by the neurologists to see a man who has been involved in a serious road traffic accident. He has sustained significant damage to his frontal lobe. Which of the following would you expect him to have?",
+                opt: ["Anosognosia", "Wernicke's aphasia", "Contralateral homonymous hemianopia", "Constructional apraxia", "Contralateral hemiplegia"],
+                ans: "Contralateral hemiplegia",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q9 Question Stem: In clinical trials of depression, what percentage reduction in depressive symptoms is generally considered to constitute a response to treatment?",
+                opt: ["10%", "80%", "50%", "40%", "20%"],
+                ans: "50%",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q8 Question Stem: A lady with schizophrenia fails to respond to haloperidol and then to fluphenazine. Which of the following drugs would be the most appropriate next step?",
+                opt: ["Olanzapine", "Valproate", "Clozapine", "Carbamazepine", "Pimozide"],
+                ans: "Olanzapine",
+                exp: "This is a trick question which catches many out. The guidance is clear in that clozapine should only be started once two antipsychotics (one of which must have been an ATYPICAL) have been tried. In the above question both the antipsychotics are typicals."
+            },
+            {
+                q: "Unnumbered Question Question Stem: A patient with a complex mental disorder consisting of schizo-affective disorder and anxiety is flagged up by their general practitioner as having a raised AST on a routine liver function test. They are prescribed a number of medications which include: olanzapine, mirtazapine, carbamazepine, dexamfetamine, zopiclone. Which of the above medications would you most expect to be a potential cause for the deranged liver function?",
+                opt: ["Promethazine", "Dexamfetamine", "Zopiclone", "Olanzapine", "Vigabatrin"],
+                ans: "Olanzapine",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q5 Question Stem: A young woman experiences a sudden loss of vision after witnessing her boyfriend get knocked down by a car. No medical cause can be found to explain this. She is surprisingly unconcerned by her symptoms. Select the most likely diagnosis.",
+                opt: ["Persistent somatoform pain disorder", "Hypochondriasis", "Somatization disorder", "Body dysmorphic disorder", "Conversion disorder"],
+                ans: "Conversion disorder",
+                exp: "The lack of concern about her vision is suggestive of La belle indifference which is a feature of conversion disorder."
+            },
+            {
+                q: "Q6 Question Stem: Which of the following is a term used to describe a brief, short lived psychotic episode lasting less than 3 months?",
+                opt: ["Oneiroid state", "Bouffée délirante", "Latent schizophrenia", "Simple schizophrenia", "Paraphrenia"],
+                ans: "Bouffée délirante",
+                exp: "Exam Question Apr 2013. The oneroid state is a dreamlike state. Latent schizophrenia is an old term used to describe patients with borderline, schizoid, and schizotypal personality disorders."
+            },
+            {
+                q: "Q3 Question Stem: Which of the following is another term for Munchausen syndrome?",
+                opt: ["Conversion disorder", "Undifferentiated somatoform disorder", "Hypochondriasis", "Ganser syndrome", "Factitious disorder"],
+                ans: "Factitious disorder",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Unnumbered Question Question Stem: A 24 year old lady presents to A&E complaining of haemoptysis, abdominal pain and pyrexia for the past 2 months. All blood tests come back as normal and the only abnormalities found on examination are numerous bizarre-shaped lesions on both forearms with various stages of healing. She denies these being self-inflicted. The skin lesions were reviewed by a dermatologist who concluded that they were not compatible with any known dermatological disorder. Which of the following do you most suspect?",
+                opt: ["Hypochondriasis", "Systemic lupus erythematous", "Acute intermittent Porphyria", "Wegener's granulomatosis", "Factitious disorder"],
+                ans: "Factitious disorder",
+                exp: "The odd looking scratches and blisters on the forearms is suggestive of dermatitis artefacta which is an intentional self-inflicted dermatitis. This is a characteristic feature of factitious disorder."
+            },
+            {
+                q: "Q1 Question Stem: A male patient with schizophrenia is commenced on clozapine which he tolerates well. After noting a good response you obtain his levels and learn that his plasma concentration is 850 ug/L. Which of the following courses of action would you take?",
+                opt: ["Reduce dose so that plasma levels reduce to <500 ug/L", "Commence valproate", "Increase clozapine dose until levels increase to 1000 mg/L", "Continue current dose and consider use of an anticonvulsant", "Half the dose of clozapine and repeat levels in one week"],
+                ans: "Reduce dose so that plasma levels reduce to <500 ug/L",
+                exp: "The Maudsley 12th Edition was fairly prescriptive in this situation and recommended attempting a dose reduction to get levels between 350-500 ug/L. This is not explicitly stated in the 13th Edition but it remains the most sensible option in the above scenario. The patient may way tolerate a reduced dose without any issues which would avoid the risk of seizures and would avoid the need for polypharmacy (the addition of an anticonvulsant)."
+            },
+            {
+                q: "Q2 Question Stem: Which of the following is also known as asthenic personality disorder?",
+                opt: ["Obsessive compulsive personality disorder", "Borderline personality disorder", "Antisocial personality disorder", "Dependent personality disorder", "Histrionic personality disorder"],
+                ans: "Dependent personality disorder",
+                exp: "Dependent personality disorder is also known as asthenic personality disorder."
+            },
+            {
+                q: "Q44 Question Stem: Atypical depression is thought to respond best to which of the following?",
+                opt: ["SSRI'S", "SNRI'S", "NRI'S", "Tricyclics", "MAOI'S"],
+                ans: "MAOI'S",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q45 Question Stem: A lady who is 28 weeks pregnant presents with features of a mixed affective state. She has no history of mental illness. Which of the following would be the most appropriate treatment option?",
+                opt: ["Lithium", "Haloperidol", "Citalopram", "Valproate", "Clozapine"],
+                ans: "Haloperidol",
+                exp: "Exam Question Apr 2013."
+            },
+            {
+                q: "Q42 Question Stem: All of the following are recognised symptoms associated with hyponatremia except.",
+                opt: ["Muscle spasm", "Lethargy", "Chest pain", "Seizures", "Confusion"],
+                ans: "Chest pain",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q43 Question Stem: Which of the following drugs acts by interacting with a G-coupled receptor?",
+                opt: ["Valium", "Cannabis", "Cocaine", "Alcohol", "Ketamine"],
+                ans: "Cannabis",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q41 Question Stem: Abnormalities in which of the following can lead to an artificially high calcium level?",
+                opt: ["Albumin", "Urea", "Sodium", "Creatinine", "Phosphate"],
+                ans: "Albumin",
+                exp: "Exam Question Apr 2013."
+            },
+            {
+                q: "Q40 Question Stem: Which of the following is recommended as first line for children with severe OCD?",
+                opt: ["Fluoxetine", "Rational emotive therapy", "Family therapy", "Clomipramine", "CBT with ERP"],
+                ans: "CBT with ERP",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q39 Question Stem: The National Psychiatric Morbidity Survey found which of the following to be the most prevalent neurotic disorder?",
+                opt: ["Generalised anxiety disorder", "Mixed anxiety and depression", "Panic disorder", "Phobias", "Obsessive-compulsive disorder"],
+                ans: "Mixed anxiety and depression",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q38 Question Stem: Which of the following is true regarding self-harm?",
+                opt: ["All instances of self-harm should be viewed as suicide attempts", "There is a higher incidence of self-harm in people from sexual minorities", "The rate of self-harm is higher among men than women", "The incidence of completed suicide has increased over the past 20 years", "The incidence of self-harm in the UK has decreased over the past 20 years"],
+                ans: "There is a higher incidence of self-harm in people from sexual minorities",
+                exp: "The incidence of self harm in the UK has increased over the past 20 years, interestingly this is in contrast to the trends on completed suicide. The rate of self-harm is higher among women and girls than among men and boys although completed suicide is more prevalent among men and boys."
+            },
+            {
+                q: "Q37 Question Stem: A patient with a history of depression has now become pregnant. What is the risk of her developing depression following the delivery?",
+                opt: ["90%", "10%", "50%", "5%", "25%"],
+                ans: "25%",
+                exp: "Exam Question Dec 2010. Without a history of depression, the risk of postpartum depression is 10%. This is increased to 25% if there is a history of depression, and to 50% if there is a history of postpartum depression. Suri R. The assessment and treatment of postpartum psychiatric disorders. J Pract Psychiatry Behav Health. 1997, 3:67-77."
+            },
+            {
+                q: "Q35 Question Stem: According to the ICD-10, which of the following is false regarding a diagnosis of post traumatic stress disorder?",
+                opt: ["Flashbacks are a diagnostic feature", "The condition must develop within 12 months of the event", "Partial amnesia for part of the event supports the diagnosis", "The event leading to PTSD must be likely to cause distress in almost anyone", "The patient should avoid situations related to the event"],
+                ans: "The condition must develop within 12 months of the event",
+                exp: "The event should precede the reaction by no more than 6 months."
+            },
+            {
+                q: "Q36 Question Stem: Which of the following is true regarding self harm?",
+                opt: ["Strangulation is the most common method of self harm", "Older people who self-harm often have a degree of suicidal intent", "Self harm is rare in prisoners", "It is rare for people who self harm not to see a psychiatrist", "Self harm is more common in men than women"],
+                ans: "Older people who self-harm often have a degree of suicidal intent",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Q33 Question Stem: Which of the following instruments yields data on the severity of mental health conditions?",
+                opt: ["The DIS", "The CIDI", "The CIS", "The WMH-CIDI", "None of the above"],
+                ans: "The WMH-CIDI",
+                exp: "None provided in this excerpt."
+            },
+            {
+                q: "Question 32 Question Stem: A 24-year old lady attends clinic. She is keen to tell you about her relationship. She explains that initially her boyfriend seemed perfect and she moved in with him because she fell out with her family. She had felt empty before meeting him but he had changed that. In the next appointment, you learn that she has split up from her boyfriend and now feels suicidal.",
+                opt: ["Dependent", "Borderline"],
+                ans: "Borderline",
+                exp: "Features of borderline personality disorder include:- Efforts to avoid real or imagined abandonment. Unstable interpersonal relationships which alternate between idealization and devaluation. Unstable self image. Impulsivity in potentially self damaging area (e.g. Spending, sex, substance abuse). Recurrent suicidal behaviour. Affective instability. Chronic feelings of emptiness. Difficulty controlling temper. Quasi psychotic thoughts."
+            },
+            {
+                q: "Question 33 Question Stem: A man attends clinic with depression. He complains that he keeps getting fired from work. His last boss told him that he was too rigid and needs to learn how to delegate. The man feels that no one at work had high enough standards.",
+                opt: ["Anankastic (Note: Other options not visible)"],
+                ans: "Anankastic",
+                exp: "Features of obsessive compulsive (anankastic) personality disorder include:- Preoccupation with details, rules, lists, order. Or schedules to the extent that the major point of the exercise is lost. Perfectionism that interferes with task completion. Excessive devotion to work to the exclusion of leisure activities and friendships. Overconsciousness, and inflexibility about matters of morality, ethics, or values. Inability to discard worn"
+            },
+            {
+                q: "Q28 Question Stem: Which of the following SSRIs is most likely to cause significant weight gain?",
+                opt: ["Citalopram", "Fluoxetine", "Sertraline", "Fluvoxamine", "Paroxetine"],
+                ans: "Paroxetine",
+                exp: "Paroxetine has been associated with more weight gain and a higher incidence of sexual side effects than other SSRIs. Maudsley Guidelines 10th Edition."
+            },
+            {
+                q: "Q29 Question Stem: Which of the following is not recommended by the Maudsley Guidelines as a treatment option to augment the effect of clozapine?",
+                opt: ["Haloperidol", "Pimozide", "Ziprasidone", "Omega-3-triglycerides", "Aripiprazole"],
+                ans: "Pimozide",
+                exp: "None provided."
+            },
+            {
+                q: "Q27 Question Stem: Which of the following is characterised by contraction of the jaw musculature and can result in lockjaw?",
+                opt: ["Opisthotonus", "Trismus", "Laryngeal dystonia", "Oculogyric crises", "Torticollis"],
+                ans: "Trismus",
+                exp: "None provided."
+            },
+            {
+                q: "Unnumbered Question Question Stem: A 24-year-old male patient presented with a 2-month history of worsening hallucinations and delusions. He was treated by a psychiatrist and started on valproate, lithium, olanzapine, risperidone and clonazepam. On the second day of starting the medication he developed excessive perspiration, rigors, high-grade continuous fever, agitation and aggressive behaviour. Initially considering this as an aggravation of his psychiatric behaviour the psychiatrist continued with the medications, which were eventually stopped after 4 days. Over the next 4–5 days of continuing medications his condition deteriorated. He continued to have high-grade continuous fever and also developed diarrhoea. The patient was transferred to a hospital. There was no history of headache, photophobia, neck stiffness, vomiting, diplopia, jaundice, reduced urine output, convulsions, abnormal movements or posturing. There was no history of illicit drug use. On examination, hypertonia was obvious in all four limbs (lead pipe rigidity) and hyper-reflexia including bilateral sustained ankle clonus was elicited. Which of the above signs and symptoms are most helpful in distinguishing between serotonin syndrome and neuroleptic malignant syndrome?",
+                opt: ["Diarrhoea", "Rigors", "Agitation", "High-grade continuous fever", "Hyper-reflexia"],
+                ans: "Hyper-reflexia",
+                exp: "None provided."
+            },
+            {
+                q: "Q26 Question Stem: Modafinil is indicated in which of the following conditions?",
+                opt: ["Obsessive compulsive disorder", "Panic disorder", "Narcolepsy", "Schizophrenia", "Dementia"],
+                ans: "Narcolepsy",
+                exp: "None provided."
+            },
+            {
+                q: "Unnumbered Question Question Stem: A 25 year old man who identifies himself as homosexual attends clinic with depression. He is dressed as a female and says that he does so more often than dressing as a male. He denies any desire to have gender reassignment surgery and says that he is content with his physical form. He denies any sexual excitement accompanying the wearing of womens clothes. Which of the following diagnoses is most appropriate?",
+                opt: ["Fetishistic transvestism", "Exhibitionism", "Dual-role transvestism", "Transsexualism", "Voyeurism"],
+                ans: "Dual-role transvestism",
+                exp: "The most appropriate diagnosis is dual-role transvestism which is a gender identity disorder. Fetishistic transvestism, exhibitionism and voyeurism are disorders of sexual preference."
+            },
+            {
+                q: "Q23 Question Stem: A patient with chronic schizophrenia, maintained on a dose of 2mg risperidone for the past 2 years, develops a worsening of his condition. He is admitted to hospital and after a few days complains that his body feels stiff. A nurse tells you that his temperature is 38.5 °C. You note he appears breathless and sweaty. You note on his drug chart that his risperidone was increased to 4mg two days ago. Which of the following would you most suspect?",
+                opt: ["Serotonin syndrome", "Neuroleptic malignant syndrome", "Akathisia", "Psychogenic movement disorder", "Dystonic reaction"],
+                ans: "Neuroleptic malignant syndrome",
+                exp: "Exam Question Apr 2014"
+            },
+            {
+                q: "Q21 Question Stem: Regarding NICE guidelines on depression, which one of the following best describes the most appropriate management of a patient who presents with severe depression?",
+                opt: ["SSRI", "High-intensity psychosocial interventions", "SSRI + counselling", "SSRI + low-intensity psychosocial interventions", "SSRI + high-intensity psychological interventions"],
+                ans: "SSRI + high-intensity psychological interventions",
+                exp: "In this situation NICE recommend 'for people with moderate or severe depression, combine antidepressants with a high-intensity psychological intervention (CBT or IPT)'."
+            },
+            {
+                q: "Q22 Question Stem: Which of the following structures has been implicated in the aetiology of post traumatic stress disorder?",
+                opt: ["Caudate nucleus", "Pineal gland", "Amygdala", "Reticular activating system", "Olive nucleus"],
+                ans: "Amygdala",
+                exp: "None provided."
+            },
+            {
+                q: "Q19 Question Stem: Which of the following findings on a PET scan would be most indicative of Alzheimer's dementia?",
+                opt: ["Left dorsolateral prefrontal cortex hypermetabolism", "Temporoparietal hypometabolism", "Hypometabolism in the cerebellum", "Left inferior occipital lobe hypermetabolism", "Orbital frontal cortex hypometabolism"],
+                ans: "Temporoparietal hypometabolism",
+                exp: "PET scans show how metabolically active regions of the brain are. In Alzheimer's there is reduced metabolic activity in the temporoparietal cortices due to atrophy in those areas."
+            },
+            {
+                q: "Q20 Question Stem: Which of the following is not recommended for people suffering with insomnia?",
+                opt: ["Use bed only for sleeping", "Decrease alcohol intake", "Get regular exercise in the evening", "Use anxiety management and relaxation techniques", "Do not sleep during the day"],
+                ans: "Get regular exercise in the evening",
+                exp: "None provided."
+            },
+            {
+                q: "Q18 Question Stem: Drugs recommended by NICE for the treatment of PTSD (in adults) include all of the following except?",
+                opt: ["Fluoxetine", "Citalopram", "Sertraline", "Venlafaxine", "Amitriptyline"],
+                ans: "Amitriptyline",
+                exp: "NICE 2018. For PTSD = Options include SSRI and venlafaxine."
+            },
+            {
+                q: "Questions 15, 16, & 17 Question Stem: Select the closest approximation of the male:female ratio for each of the following conditions",
+                opt: ["Generalised anxiety disorder -> Correct Answer: 1:2", "Panic with agoraphobia -> Correct Answer: 1:3", "Obsessive compulsive disorder -> Correct Answer: 1:1"],
+                ans: "Generalised anxiety disorder -> Correct Answer: 1:2",
+                exp: "None provided."
+            },
+            {
+                q: "Q14 Question Stem: Which of the following is a risk factor for puerperal psychosis?",
+                opt: ["Young age", "Family conflict", "Pre-existing affective psychosis", "Previous pregnancy loss", "Ambivalence about the current pregnancy"],
+                ans: "Pre-existing affective psychosis",
+                exp: "Exam Question Apr 2012"
+            },
+            {
+                q: "Q12 Question Stem: Which of the following is a long acting opioid antagonist used in the management of opioid and alcohol dependence?",
+                opt: ["Naltrexone", "Methadone", "Buprenorphine", "Atomoxetine", "Naloxone"],
+                ans: "Naltrexone",
+                exp: "Exam Question Oct 2012. There are two main opioid antagonists. Naloxone is the short acting preparation used in acute settings such as opiate overdose. Naltrexone is the longer acting form used in dependence. Interestingly it is also useful in alcohol dependence, the mechanism which underlies this is unknown."
+            },
+            {
+                q: "Unnumbered Question Question Stem: A 40 year old lady complains of a 20 year history of nausea, headache, difficultly swallowing and unusual pains in her arms and legs. All investigations have all been normal and the medical team doubt the presence of an organic pathology. Which is the most likely diagnosis?",
+                opt: ["Conversion disorder", "Hypochondriasis", "Somatization disorder", "Depression", "Body dysmorphic disorder"],
+                ans: "Somatization disorder",
+                exp: "People often get confused between hypochondriasis and somatization disorder. In hypochondriasis people are preoccupied with the belief that they have a specific condition. In somatization disorder people are more concern with symptoms than a specific condition."
+            },
+            {
+                q: "Q10 Question Stem: Sialadenosis is associated with which of the following?",
+                opt: ["Aspergers", "Schizophrenia", "Down's syndrome", "Bulimia", "Wilson's disease"],
+                ans: "Bulimia",
+                exp: "Sialadenosis refers to noninflammatory, often recurrent, enlargement of the salivary glands, most frequently the parotids, which is almost always associated with an underlying systemic disorder. These include diabetes, alcoholism, malnutrition, anorexia nervosa, and bulimia."
+            },
+            {
+                q: "Q11 Question Stem: Which of the following is a recognised symptom of combat neurosis?",
+                opt: ["Lack of guilt", "Desire to return to the region of the conflict", "Hypersomnia", "Irritability", "An inability to recall dreams"],
+                ans: "Irritability",
+                exp: "Combat neurosis is another term for PTSD. Irritability is the only symptom listed above which is a feature of PTSD."
+            },
+            {
+                q: "Q8 Question Stem: Regarding neuroleptic malignant syndrome (NMS), which of the following is true?",
+                opt: ["The mortality rate is estimated to be up to 2%", "Serum CPK is raised", "SSRI's are not associated with NMS", "Hypothermia is a common symptom", "LFT's are not normally abnormal"],
+                ans: "Serum CPK is raised",
+                exp: "None provided."
+            },
+            {
+                q: "Q9 Question Stem: Which of the following conditions is associated with rapid cycling bipolar disorder?",
+                opt: ["Hypothyroidism", "Psoriasis", "Ischaemic heart disease", "Rheumatoid arthritis", "Migraine"],
+                ans: "Hypothyroidism",
+                exp: "None provided."
+            },
+            {
+                q: "Q32 Question Stem: Which of the following is recommended by the Maudsley Guidelines as a treatment option to augment the effect of clozapine?",
+                opt: ["Olanzapine", "Pimozide", "Trazodone", "High dose vitamin E", "Amisulpride"],
+                ans: "Amisulpride",
+                exp: "Exam Question Apr 2013"
+            },
+            {
+                q: "Q31 Question Stem: Which of the following is false regarding the STAR*D trial?",
+                opt: ["All substance abuse patients were excluded", "It excluded bipolar and psychotic patients", "It was a pragmatic trial", "Higher remission rates are seen in females", "Patients who achieved remission were less likely to relapse than those who only responded"],
+                ans: "All substance abuse patients were excluded",
+                exp: "None provided."
+            },
+            {
+                q: "Q29 Question Stem: What is the estimated incidence of self-harm in the UK?",
+                opt: ["400 per 100,000", "40 per 100,000", "100 per 100,000", "4 per 100,000", "10 per 100,000"],
+                ans: "400 per 100,000",
+                exp: "None provided."
+            },
+            {
+                q: "Q30 Question Stem: ICD-10 diagnostic criteria for avoidant personality disorder includes which of the following?",
+                opt: ["Fear of failure and striving for success", "Fear of abandonment and reliance on other people", "Inability to make decisions", "Affective instability", "Fear of being criticised or rejected in social situations"],
+                ans: "Fear of being criticised or rejected in social situations",
+                exp: "Exam Question Aug 2010"
+            },
+            {
+                q: "Q27 Question Stem: Following the death of his father a man agrees to take over his fathers firm. This seems strange to the mother as the son always hated his father and never wanted anything to do with him. The mother asks her son how he feels about his decision and gets a sense that her son feels comfortable with his dislike of his father and does not detect any guilt associated with this. Which defense mechanism is most likely to be underlying the sons actions?",
+                opt: ["Undoing", "Projection", "Repression", "Displacement", "Sublimation"],
+                ans: "Sublimation",
+                exp: "Undoing and sublimation often get confused. In undoing the person seeks to neutralise their own unacceptable thoughts, emotions, or behaviors. The person feels guilty about what they have done, or felt and wants to remedy this. In sublimation the person tries to turn negative emotions into positive ones. The key difference is that in sublimation the person doesn't necessarily feel bad about their own emotions and might see them as totally justified (they do not feel guilty)."
+            },
+            {
+                q: "Q26 Question Stem: Common cardiac findings in a patient with anorexia nervosa include all of the following, except?",
+                opt: ["Shortened QT interval", "Peripheral edema", "Orthostatic hypotension", "Arrhythmia", "Bradycardia"],
+                ans: "Shortened QT interval",
+                exp: "Exam Question Oct 2012"
+            },
+            {
+                q: "Q25 Question Stem: Which of the following is least supportive of a diagnosis of narcissistic personality disorder?",
+                opt: ["Exaggerates achievements", "Expects automatic compliance", "Has robust self-esteem", "Is interpersonally exploitative", "Requires excessive admiration"],
+                ans: "Has robust self-esteem",
+                exp: "Self-esteem is almost invariably very fragile in narcissistic personality disorder."
+            },
+            {
+                q: "Q14 Question Stem: A 19 year old man is anxious that his genitals are misshapen. He remains convinced of this despite of plastic surgeon reassuring him by showing multiple images of normal genital appearances. He has not responded to psychological interventions and wants to pursue medication options. Which of the following interventions has evidence based support in the above situation?",
+                opt: ["Olanzapine", "Pimozide", "Escitalopram", "Surgical correction", "Fluoxetine"],
+                ans: "Fluoxetine",
+                exp: "The presents with body dysmorphic disorder, which is characterized by preoccupation with one or more perceived defects or flaws in physical appearance that are not observable or appear only slight to others, and by repetitive behaviors (e.g., mirror checking, excessive grooming, skin picking, or..."
+            },
+            {
+                q: "Q12 Question Stem: A patient develops tardive dyskinesia whilst using haloperidol. Which of the following should they be changed to?",
+                opt: ["Zuclopenthixol", "Chlorpromazine", "Sulpiride", "Risperidone", "Quetiapine"],
+                ans: "Quetiapine",
+                exp: "Once TD develops, it is common practice to withdraw the prescribed antipsychotic and change to an atypical antipsychotic (if not already on one). The following are specifically recommended (note that withdrawal may initially worsen the TD):- Clozapine, Quetiapine. If the patient is on an anticholinergic this should be discontinued. If withdrawing the antipsychotic is not effective or advisable the following are used: Tetrabenzine (only licensed med for TD in the UK), Benzodiazepines, Vitamin E ("
+            }
+        ];
+
+        // The total is 84 questions. The remainder will be appended in the next part.
+        let totalQuestionsCount = 84; 
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(totalQuestionsCount).fill(null);
+
+        // DOM Elements
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationContainer = document.getElementById('explanation-container');
+        const explanationText = document.getElementById('explanation-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreText = document.getElementById('score-text');
+        const quizContainer = document.getElementById('quiz-container');
+        const summaryContainer = document.getElementById('summary-container');
+
+        function initQuiz() {
+            renderQuestion();
+        }
+
+        function calculateScore() {
+            return userAnswers.filter(ans => ans && ans.isCorrect).length;
+        }
+
+        function renderQuestion() {
+            const currentQ = mcqs[currentQuestionIndex];
+            const savedAnswer = userAnswers[currentQuestionIndex];
+
+            // Reset UI for the question
+            explanationContainer.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            // Update Text & Progress
+            questionText.textContent = currentQ.q;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} of ${mcqs.length}`; 
+            scoreText.textContent = `Score: ${calculateScore()}`;
+            progressBar.style.width = `${((currentQuestionIndex) / mcqs.length) * 100}%`;
+
+            // Update Navigation state
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === mcqs.length - 1) {
+                nextBtn.classList.add('hidden');
+                finishBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                finishBtn.classList.add('hidden');
+            }
+
+            // Render Options
+            currentQ.opt.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50 text-slate-700 font-medium shadow-sm flex items-start';
+                
+                btn.innerHTML = `<span class="leading-tight">${option}</span>`;
+                
+                // If question was already answered, style it and show explanation
+                if (savedAnswer) {
+                    btn.disabled = true;
+                    
+                    const isCorrectOption = option.includes(currentQ.ans);
+                    const isSelectedOption = option === savedAnswer.selected;
+                    
+                    if (isCorrectOption) {
+                        btn.classList.add('correct');
+                    } else if (isSelectedOption && !savedAnswer.isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+
+                    showExplanation(currentQ.exp);
+                    if(currentQuestionIndex !== mcqs.length - 1) {
+                        nextBtn.textContent = 'Next →';
+                    }
+                } else {
+                    btn.onclick = () => handleAnswer(btn, option, currentQ.ans, currentQ.exp);
+                    nextBtn.textContent = 'Skip / Next →';
+                }
+                
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedBtn, selectedOption, correctOption, explanation) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.disabled = true); 
+
+            const isCorrect = selectedOption.includes(correctOption) || correctOption === "Unknown (cut off in source)";
+            
+            userAnswers[currentQuestionIndex] = {
+                selected: selectedOption,
+                isCorrect: isCorrect
+            };
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+            } else {
+                selectedBtn.classList.add('incorrect');
+                // Highlight the correct one
+                allBtns.forEach(btn => {
+                    if(btn.textContent.includes(correctOption)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreText.textContent = `Score: ${calculateScore()}`;
+            showExplanation(explanation);
+            
+            if(currentQuestionIndex !== mcqs.length - 1) {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+        function showExplanation(explanation) {
+            explanationText.textContent = explanation || "No further explanation provided in the source material.";
+            explanationContainer.classList.remove('hidden');
+        }
+
+        // Navigation Listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < mcqs.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        });
+
+        finishBtn.addEventListener('click', () => {
+            showSummary();
+        });
+
+        function showSummary() {
+            quizContainer.classList.add('hidden');
+            summaryContainer.classList.remove('hidden');
+            progressBar.style.width = `100%`;
+            progressText.textContent = `Completed`;
+
+            const finalScore = calculateScore();
+            const attempted = userAnswers.filter(ans => ans !== null).length;
+
+            document.getElementById('final-score').textContent = `${finalScore} / ${mcqs.length}`;
+            document.getElementById('attempted-text').textContent = `You attempted ${attempted} out of ${mcqs.length} questions.`;
+            
+            const percentage = (finalScore / mcqs.length) * 100;
+            const msgEl = document.getElementById('performance-message');
+            
+            if(percentage >= 80) msgEl.textContent = "Excellent work! You have a highly advanced grasp of this clinical material.";
+            else if(percentage >= 60) msgEl.textContent = "Good job. Ensure you review the clinical explanations for the ones you missed.";
+            else msgEl.textContent = "Keep studying! Use this module repeatedly to drill these high-yield board concepts.";
+        }
+
+        // Start App
+        initQuiz();
+    </script>
+</body>
+</html>
